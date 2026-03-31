@@ -65,11 +65,12 @@ func main() {
 	sugar := logger.Sugar()
 	tctx := CreateContext(sugar, cfg)
 	//telem := telemetry.NewTelemetryProvider(tctx, cfg)
-	//ctx, pSpan := otel.tracer.Start(tctx, "main")
+	//pSpan := telem.StartTracer("main")
 	//defer pSpan.End()
 	defer logger.Sync()
 	r := CreateRouter(tctx)
 	sugar.Info("Starting interview microservice on port: " + strconv.Itoa(cfg.Port) + " host: " + cfg.BindAddress)
 
-	http.Handle("/", r)
+	//http.Handle("/", r)
+	http.ListenAndServe(cfg.BindAddress+":"+strconv.Itoa(cfg.Port), r)
 }
