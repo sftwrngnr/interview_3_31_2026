@@ -7,8 +7,11 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
+	"go.opentelemetry.io/otel"
+	"go.opentelementry.io/trace"
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
+	"interview_3_31_2026/handlers"
 )
 
 type Config struct {
@@ -38,7 +41,7 @@ func ReadConfig(configPath string) (*Config, error) {
 func CreateRouter(ctx context.Context) *mux.Router {
 	ctx.Value("Logger").(*zap.Logger).Sugar().Info("Create router")
 	router := mux.NewRouter()
-	router.HandleFunc("/", HomeHandler)
+	router.HandleFunc("/", handlers.HomeHandler)
 	router.HandleFunc("/mainendpoint", MainEndpoint)
 	return router
 }
@@ -62,7 +65,9 @@ func main() {
 		log.Fatal(err)
 	}
 	sugar := logger.Sugar()
-	ctx := CreateContext(sugar, cfg)
+	tctx := CreateContext(sugar, cfg)
+	ctx, pSpan := otel.tracer.Start(tctx, "main")
+	defer pSpan.End()
 	defer logger.Sync()
 	r := CreateRouter(ctx)
 	sugar.Info("Starting interview microservice")
