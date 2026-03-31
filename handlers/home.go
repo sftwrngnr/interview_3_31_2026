@@ -1,3 +1,4 @@
+// Package handlers implements the handlers associated with the api
 package handlers
 
 import (
